@@ -1,0 +1,54 @@
+＃ランダムポリシーによって生成されたログデータを用いBernoulliTSポリシーのOPEを実現するためのケース
+から OBPを。データセット インポート OpenBanditDataset 
+から obp。obp からBernoulliTS をポリシーで インポートし ます。シミュレータは、obp からrun_bandit_simulation をインポートします。ope import OffPolicyEvaluation、ReplayMethod
+   
+   
+
+＃（1）データのロードと前処理の
+データセット =  OpenBanditDataset（behavior_policy = 'random'、campaign = 'women'）
+ bandit_feedback  =  dataset。get_batch_bandit_feedback（）
+
+＃（2）オフライン強盗シミュレーション
+counterfactual_policy  =  BernoulliTS（n_actions = データセット。n_actions、len_list = データセット。len_list）
+ selected_actions  =  run_bandit_simulation（bandit_feedback = bandit_feedback、ポリシー= counterfactual_policy）
+
+＃（3）オフポリシー評価
+ope  =  OffPolicyEvaluation（bandit_feedback = bandit_feedback、ope_estimators = [ ReplayMethod（）]）
+ 見積り ポリシー値=  ope。見積もりポリシー値（selected_actions = selected_actions）
+
+＃ランダムのグラウンドトゥルースパフォーマンスに対するベルヌーイ
+TSの推定パフォーマンスrelative_policy_value_of_bernoulli_ts  =  見積られたポリシーの値 [ 'rm' ] /  bandit_feedback [ 'reward' ]。平均（）
+ 印刷（relative_policy_value_of_bernoulli_ts）＃1.120574 ...
+ 
+ ＃ランダムポリシーによって収集され、「女性」キャンペーンの負荷と前処理生データ
+セット =  OpenBanditDataset（behavior_policy = 「ランダム」、キャンペーン= 「女性）
+ ＃行動方針によって生成されたログに記録さ山賊のフィードバック取得
+bandit_feedback  =  データセットを。get_batch_bandit_feedback（）
+
+プリント（bandit_feedback。キー（））
+ ＃1 dict_keys（[ 'n_rounds'、 'n_actions'、 'アクション'、 '位置'、 '報酬'、 'pscore'、 '文脈'、 'action_context']）
+ 
+ ＃反事実ポリシー（ここでベルヌーイTSポリシー）を定義
+counterfactual_policy  =  BernoulliTS（n_actions = データセット。n_actions、len_list = データセット。len_list）
+ ＃ `selected_actions`シミュレーションに反事実ポリシーによって選択されたアクションを含む配列である
+selected_actions  =  run_bandit_simulation（bandit_feedback = bandit_feedback、policy = counterfactual_policy）
+
+＃オフライン強盗シミュレーションでそのポリシーによって選択されたアクションに基づいてBernoulliTSのポリシー値を推定
+＃ `ope_estimators`引数に複数OPE推定量を設定することが可能である
+OPE  =  OffPolicyEvaluation（bandit_feedback = bandit_feedback、ope_estimators =〔のReplayMethod（）]）
+ estimated_policy_value  =  ope。見積もりポリシー値（選択されたアクション= 選択されたアクション）
+ 印刷（見積もりポリシー値）＃{'rm'：0.005155 ..}ディクショナリには、各OPE推定量による推定ポリシー値が含まれています。
+
+
+＃BernoulliTS（偽りのポリシー）の推定パフォーマンスを＃ランダム（動作ポリシー）のグラウンドトゥルースパフォーマンスと
+比較します 。relative_policy_value_of_bernoulli_ts =  見積られたポリシーの値 [ 'rm' ] /  bandit_feedback [ 'reward' ] 平均（）
+ ＃OPE 手順は、ベルヌーイ
+TS がランダムを12.05％改善することを示唆しています（relative_policy_value_of_bernoulli_ts）＃1.120574 ...
+
+
+@article{saito2020large,
+  title={A Large-scale Open Dataset for Bandit Algorithms},
+  author={Saito, Yuta, Shunsuke Aihara, Megumi Matsutani, Yusuke Narita},
+  journal={arXiv preprint arXiv:2008.07146},
+  year={2020}
+}
